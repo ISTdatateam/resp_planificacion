@@ -150,9 +150,7 @@ def plot_radar(pivot_df: pd.DataFrame, roles_to_plot):
     return fig
 
 st.header("Gráfica de responsabilidad")
-if st.button("🔄 Actualizar datos (recargar CSV)"):
-    fetch_csv.clear()  # limpia la caché de @st.cache_data para forzar nueva descarga
-    st.rerun()         # vuelve a ejecutar la app y recalcula (raw, norm, pv, etc.)
+
 raw = fetch_csv(CSV_URL)
 norm = normalize(raw, drop_subcontrato=True)
 
@@ -163,6 +161,9 @@ comus  = [""] + sorted([x for x in norm["Comunidad"].dropna().unique().tolist()]
 
 c1, c2 = st.columns([1,1])
 with c1:
+    if st.button("🔄 Actualizar datos (recargar CSV)"):
+        fetch_csv.clear()  # limpia la caché de @st.cache_data para forzar nueva descarga
+        st.rerun()         # vuelve a ejecutar la app y recalcula (raw, norm, pv, etc.)
     fc1, fc2 = st.columns([1,1])
     with fc1:
         curso_sel = st.selectbox("Selecciona tu curso (vacío = todos)", cursos, index=1 if len(cursos)>1 else 0)
