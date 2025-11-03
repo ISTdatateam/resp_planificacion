@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Mapa de Roles Preventivos – Radar", page_icon="🛠️", layout="wide")
 
-CSV_URL = st.secrets.get("CSV_URL", "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKRi88h4vkeGJhY3nvSiYANhVrg2XERmMQqSQ5k-d-DPwCKqcNbVaX_glEv-BgMhO0wjeDEYGj_Ozr/pub?gid=129987530&single=true&output=csv")
+CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKRi88h4vkeGJhY3nvSiYANhVrg2XERmMQqSQ5k-d-DPwCKqcNbVaX_glEv-BgMhO0wjeDEYGj_Ozr/pub?gid=129987530&single=true&output=csv"
 
 ROLE_COLUMNS = [
     "Roles [Jefe de obra]",
@@ -153,30 +153,19 @@ def plot_radar(pivot_df: pd.DataFrame, roles_to_plot):
 
 st.title("🛠️ Mapa de Roles Preventivos – Radar por Rol")
 
-with st.sidebar:
-    st.markdown("### Fuente de datos")
-    st.write("El app carga un CSV publicado de Google Sheets.")
-    st.text_input("CSV URL", value=CSV_URL, key="csv_url")
-
-    drop_sub = st.checkbox("Excluir 'Subcontrato' del análisis", value=True,
-                           help="Actívalo para replicar el radar original sin incluir Subcontrato.")
-
-raw = fetch_csv(st.session_state["csv_url"])
-norm = normalize(raw, drop_subcontrato=drop_sub)
+raw = fetch_csv(CSV_URL)
+norm = normalize(raw, drop_subcontrato=True)
 
 cursos = [""] + sorted([x for x in norm["Curso"].dropna().unique().tolist()])
 comus  = [""] + sorted([x for x in norm["Comunidad"].dropna().unique().tolist()])
-tareas = [""] + sorted([x for x in norm["Tarea"].dropna().unique().tolist()])
 
 fc1, fc2, fc3 = st.columns([1,1,2])
 with fc1:
     curso_sel = st.selectbox("Selecciona tu curso (vacío = todos)", cursos, index=1 if len(cursos)>1 else 0)
 with fc2:
     comu_sel = st.selectbox("Selecciona tu comunidad (vacío = todas)", comus)
-with fc3:
-    tarea_sel = st.selectbox("Tarea crítica (vacío = todas)", tareas, index=1 if len(tareas)>1 else 0)
 
-pv = pivot_counts(norm, curso_sel, comu_sel, tarea_sel)
+pv = pivot_counts(norm, curso_sel, comu_sel)
 
 roles_all = pv.index.tolist()
 default_roles = [r for r in roles_all if r != "Subcontrato"]
@@ -184,7 +173,7 @@ roles_sel = st.multiselect("Roles a mostrar", roles_all, default=default_roles i
 
 c1, c2 = st.columns([3,2])
 with c1:
-    st.subheader(tarea_sel or "Todas las tareas")
+    st.subheader("Todas las tareas")
     fig = plot_radar(pv, roles_sel if roles_sel else roles_all)
     st.pyplot(fig, use_container_width=True)
 
