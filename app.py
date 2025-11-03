@@ -180,19 +180,3 @@ with c1:
 with c2:
     st.subheader("Tabla (conteos)")
     st.dataframe(pv.loc[roles_sel] if roles_sel else pv, use_container_width=True)
-
-st.divider()
-col_a, col_b = st.columns(2)
-with col_a:
-    st.download_button("⬇️ Descargar datos normalizados (CSV)",
-                       data=norm.to_csv(index=False).encode("utf-8-sig"),
-                       file_name="normalizado_mapa_roles.csv",
-                       mime="text/csv")
-
-with col_b:
-    st.download_button("⬇️ Descargar pivote filtrado (CSV)",
-                       data=pv.to_csv().encode("utf-8-sig"),
-                       file_name="pivote_roles_funciones.csv",
-                       mime="text/csv")
-
-st.caption("Tip: Usa `.streamlit/secrets.toml` con `CSV_URL=\"...\"` para cambiar la fuente sin tocar el código.")
