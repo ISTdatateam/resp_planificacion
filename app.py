@@ -149,7 +149,6 @@ def plot_radar(pivot_df: pd.DataFrame, roles_to_plot):
     ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
     return fig
 
-
 st.header("Gráfica de responsabilidad")
 
 raw = fetch_csv(CSV_URL)
@@ -173,7 +172,6 @@ with c1:
     roles_all = pv.index.tolist()
     default_roles = [r for r in roles_all if r != "Subcontrato"]
     roles_sel = st.multiselect("Roles a mostrar", roles_all, default=default_roles if default_roles else roles_all)
-    st.subheader("Tabla (conteos)")
     st.dataframe(pv.loc[roles_sel] if roles_sel else pv, use_container_width=True)
 
 with c2:
