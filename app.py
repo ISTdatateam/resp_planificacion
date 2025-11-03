@@ -20,7 +20,6 @@ ROLE_COLUMNS = [
     "Roles [Jefe de obra]",
     "Roles [Prevencionista]",
     "Roles [Capataz]",
-    "Roles [Subcontrato]",
     "Roles [Trabajadores]",
     # "Roles [Fila 5]" // si aparece, se ignora
 ]
@@ -29,7 +28,6 @@ ROLE_NAMES = {
     "Roles [Jefe de obra]" : "Jefe de obra",
     "Roles [Prevencionista]": "Prevencionista",
     "Roles [Capataz]": "Capataz",
-    "Roles [Subcontrato]": "Subcontrato",
     "Roles [Trabajadores]": "Trabajadores"
 }
 
@@ -151,7 +149,8 @@ def plot_radar(pivot_df: pd.DataFrame, roles_to_plot):
     ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
     return fig
 
-st.title("🛠️ Mapa de Roles Preventivos – Radar por Rol")
+
+st.header("Gráfica de responsabilidad")
 
 raw = fetch_csv(CSV_URL)
 norm = normalize(raw, drop_subcontrato=True)
@@ -159,24 +158,24 @@ norm = normalize(raw, drop_subcontrato=True)
 cursos = [""] + sorted([x for x in norm["Curso"].dropna().unique().tolist()])
 comus  = [""] + sorted([x for x in norm["Comunidad"].dropna().unique().tolist()])
 
-fc1, fc2, fc3 = st.columns([1,1,2])
-with fc1:
-    curso_sel = st.selectbox("Selecciona tu curso (vacío = todos)", cursos, index=1 if len(cursos)>1 else 0)
-with fc2:
-    comu_sel = st.selectbox("Selecciona tu comunidad (vacío = todas)", comus)
 
-pv = pivot_counts(norm, curso_sel, comu_sel)
 
-roles_all = pv.index.tolist()
-default_roles = [r for r in roles_all if r != "Subcontrato"]
-roles_sel = st.multiselect("Roles a mostrar", roles_all, default=default_roles if default_roles else roles_all)
-
-c1, c2 = st.columns([3,2])
+c1, c2 = st.columns([1,1])
 with c1:
-    st.subheader("Todas las tareas")
-    fig = plot_radar(pv, roles_sel if roles_sel else roles_all)
-    st.pyplot(fig, use_container_width=True)
+    fc1, fc2 = st.columns([1,1])
+    with fc1:
+        curso_sel = st.selectbox("Selecciona tu curso (vacío = todos)", cursos, index=1 if len(cursos)>1 else 0)
+    with fc2:
+        comu_sel = st.selectbox("Selecciona tu comunidad (vacío = todas)", comus)
 
-with c2:
+    pv = pivot_counts(norm, curso_sel, comu_sel)
+
+    roles_all = pv.index.tolist()
+    default_roles = [r for r in roles_all if r != "Subcontrato"]
+    roles_sel = st.multiselect("Roles a mostrar", roles_all, default=default_roles if default_roles else roles_all)
     st.subheader("Tabla (conteos)")
     st.dataframe(pv.loc[roles_sel] if roles_sel else pv, use_container_width=True)
+
+with c2:
+    fig = plot_radar(pv, roles_sel if roles_sel else roles_all)
+    st.pyplot(fig, use_container_width=True)
